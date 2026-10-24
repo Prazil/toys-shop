@@ -1,0 +1,24 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Node modules
+node_modules/
+client/node_modules/
+
+# Production build
+client/dist/
+
+# SQLite Database storage
+server/data/giftshop.sqlite*
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.system_generated/
+
+# OS files
+.DS_Store
+Thumbs.db
