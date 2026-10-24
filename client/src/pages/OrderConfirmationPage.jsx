@@ -103,11 +103,36 @@ export default function OrderConfirmationPage({ orderId, onNavigate }) {
             border: '1.5px dashed var(--primary-border)',
             borderRadius: '16px',
             padding: '12px 24px',
-            marginBottom: '32px'
+            marginBottom: order.delivery_otp ? '20px' : '32px'
           }}>
             <span style={{ fontSize: '13px', color: '#64748B', textTransform: 'uppercase', fontWeight: '700' }}>Order Reference ID: </span>
             <strong style={{ fontSize: '18px', color: 'var(--primary)', letterSpacing: '0.5px' }}>{order.order_id}</strong>
           </div>
+
+          {/* Secure Delivery OTP Box (Free to customer) */}
+          {order.delivery_otp && (
+            <div style={{
+              backgroundColor: '#FFFBEB',
+              border: '2px dashed #F59E0B',
+              borderRadius: '20px',
+              padding: '18px 24px',
+              maxWidth: '480px',
+              margin: '0 auto 32px',
+              textAlign: 'center'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '12px', fontWeight: '800', color: '#B45309', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '6px' }}>
+                <span>🔐</span>
+                <span>Your Secure Delivery OTP</span>
+                <span style={{ backgroundColor: '#10B981', color: '#FFFFFF', padding: '1px 8px', borderRadius: '50px', fontSize: '10px' }}>FREE</span>
+              </div>
+              <div style={{ fontSize: '34px', fontWeight: '900', letterSpacing: '8px', color: '#D97706', fontFamily: 'monospace' }}>
+                {order.delivery_otp}
+              </div>
+              <div style={{ fontSize: '13px', color: '#92400E', marginTop: '6px', lineHeight: '1.4' }}>
+                ⚠️ <strong>Important:</strong> Share this 4-digit OTP with your delivery executive <strong>only after receiving your gift package</strong>.
+              </div>
+            </div>
+          )}
 
           {/* Key Details Grid */}
           <div style={{

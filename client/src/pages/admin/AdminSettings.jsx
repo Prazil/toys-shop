@@ -523,7 +523,7 @@ export default function AdminSettings() {
           }}
         >
           <CreditCard size={16} />
-          <span>Store Profile &amp; UPI QR</span>
+          <span>Store Profile, Shipping &amp; Delivery OTP</span>
         </button>
 
         <button
@@ -1520,7 +1520,7 @@ export default function AdminSettings() {
               🏪 Store Identity &amp; Active Merchant UPI
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '28px' }}>
               <div className="input-group">
                 <label className="input-label">Shop Name</label>
                 <input
@@ -1561,27 +1561,133 @@ export default function AdminSettings() {
                   className="input-control"
                 />
               </div>
+            </div>
 
-              <div className="input-group">
-                <label className="input-label">Free Shipping Threshold (₹)</label>
-                <input
-                  type="number"
-                  value={settings.free_shipping_threshold || '499'}
-                  onChange={(e) => handleChange('free_shipping_threshold', e.target.value)}
-                  className="input-control"
-                />
+            {/* SHIPPING RATES CONFIGURATION */}
+            <div style={{
+              borderTop: '2px dashed var(--border-soft)',
+              paddingTop: '24px',
+              marginTop: '10px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '16px', color: '#1E293B', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span>🚚</span>
+                    <span>Shipping &amp; Delivery Rate Rules</span>
+                  </h4>
+                  <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#64748B' }}>
+                    Configure whether all orders get Free Shipping or if customers pay a standard delivery fee below a threshold.
+                  </p>
+                </div>
+
+                {/* Quick Shipping Presets */}
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleChange('shipping_fee', '0');
+                      handleChange('free_shipping_threshold', '0');
+                      showToast('Preset: 100% Free Shipping on ALL orders selected!');
+                    }}
+                    className="btn btn-outline btn-sm"
+                    style={{ borderColor: '#10B981', color: '#10B981', fontWeight: '700' }}
+                  >
+                    🎉 100% Free Delivery (All Orders)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleChange('shipping_fee', '49');
+                      handleChange('free_shipping_threshold', '499');
+                      showToast('Preset: ₹49 Delivery Fee, Free above ₹499 selected!');
+                    }}
+                    className="btn btn-outline btn-sm"
+                    style={{ borderColor: '#6366F1', color: '#6366F1', fontWeight: '700' }}
+                  >
+                    📦 ₹49 Fee (Free &gt; ₹499)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleChange('shipping_fee', '79');
+                      handleChange('free_shipping_threshold', '999');
+                      showToast('Preset: ₹79 Delivery Fee, Free above ₹999 selected!');
+                    }}
+                    className="btn btn-outline btn-sm"
+                    style={{ borderColor: '#F59E0B', color: '#F59E0B', fontWeight: '700' }}
+                  >
+                    🚚 ₹79 Fee (Free &gt; ₹999)
+                  </button>
+                </div>
               </div>
 
-              <div className="input-group">
-                <label className="input-label">Standard Delivery Fee (₹)</label>
-                <input
-                  type="number"
-                  value={settings.shipping_fee || '0'}
-                  onChange={(e) => handleChange('shipping_fee', e.target.value)}
-                  className="input-control"
-                />
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                <div className="input-group" style={{ margin: 0 }}>
+                  <label className="input-label">Standard Delivery Fee (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="0 for 100% Free delivery"
+                    value={settings.shipping_fee ?? '0'}
+                    onChange={(e) => handleChange('shipping_fee', e.target.value)}
+                    className="input-control"
+                    style={{ fontSize: '15px', fontWeight: '700' }}
+                  />
+                  <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px' }}>
+                    {parseFloat(settings.shipping_fee || '0') === 0 
+                      ? '✨ Delivery is completely FREE on every order!' 
+                      : `Customers pay ₹${settings.shipping_fee} unless cart reaches the free shipping threshold.`}
+                  </div>
+                </div>
+
+                <div className="input-group" style={{ margin: 0 }}>
+                  <label className="input-label">Free Shipping Threshold (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 499"
+                    value={settings.free_shipping_threshold ?? '499'}
+                    onChange={(e) => handleChange('free_shipping_threshold', e.target.value)}
+                    className="input-control"
+                    style={{ fontSize: '15px', fontWeight: '700' }}
+                  />
+                  <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px' }}>
+                    Orders at or above this amount automatically unlock FREE delivery.
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* FREE DELIVERY OTP SYSTEM INFO */}
+            <div style={{
+              backgroundColor: '#FFFBEB',
+              border: '1.5px solid #FDE68A',
+              borderRadius: '16px',
+              padding: '20px',
+              marginTop: '20px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                <div style={{ fontSize: '24px', lineHeight: 1 }}>🔐</div>
+                <div>
+                  <h4 style={{ margin: '0 0 6px', fontSize: '15px', color: '#92400E', fontWeight: '800' }}>
+                    Free Delivery OTP System (Zero Paid SMS Charges!)
+                  </h4>
+                  <div style={{ fontSize: '13px', color: '#B45309', lineHeight: '1.6' }}>
+                    <p style={{ margin: '0 0 8px' }}>
+                      To prevent fraud and guarantee packages reach the right customer without paying for costly Indian SMS gateway recharge credits:
+                    </p>
+                    <ul style={{ margin: 0, paddingLeft: '18px' }}>
+                      <li><strong>Auto-Generated:</strong> Every new order automatically gets a unique, secure 4-digit Delivery OTP (e.g. <code>4829</code>).</li>
+                      <li><strong>100% Free Delivery:</strong> The OTP is sent free to the customer via <strong>WhatsApp</strong>, in their <strong>Confirmation Email</strong>, and displayed on their <strong>Live Order Tracking Page</strong>.</li>
+                      <li><strong>Safe Handover:</strong> When you or your courier partner deliver the package, verify the customer's 4-digit OTP in <strong>Admin &gt; Orders</strong> before marking as <em>Delivered</em>.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '40px' }}>
@@ -1591,7 +1697,7 @@ export default function AdminSettings() {
               className="btn btn-primary btn-lg"
             >
               <Save size={18} />
-              <span>{saving ? 'Saving...' : 'Save Store Profile'}</span>
+              <span>{saving ? 'Saving...' : 'Save Settings'}</span>
             </button>
           </div>
         </form>

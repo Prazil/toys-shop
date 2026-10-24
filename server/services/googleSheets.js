@@ -62,6 +62,7 @@ async function formatOrderForSheets(orderId) {
     payment_status: order.payment_status,
     order_status: order.order_status,
     tracking_number: order.tracking_number || '',
+    delivery_otp: order.delivery_otp || '',
     created_at: order.created_at,
     updated_at: order.updated_at,
     row_values: [

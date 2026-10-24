@@ -157,6 +157,58 @@ export default function OrderTrackingPage({ onNavigate }) {
               </div>
             </div>
 
+            {/* Free Secure Delivery OTP Card */}
+            {trackingData.delivery_otp && (
+              <div style={{
+                backgroundColor: '#FFFBEB',
+                border: '2px dashed #F59E0B',
+                borderRadius: '18px',
+                padding: '16px 20px',
+                marginBottom: '26px',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{
+                    width: '44px',
+                    height: '44px',
+                    borderRadius: '50%',
+                    backgroundColor: '#FEF3C7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '22px'
+                  }}>
+                    🔐
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '13px', fontWeight: '800', color: '#92400E', textTransform: 'uppercase' }}>Delivery Verification OTP</span>
+                      <span style={{ backgroundColor: '#10B981', color: '#FFFFFF', padding: '1px 6px', borderRadius: '50px', fontSize: '9px', fontWeight: '800' }}>FREE</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#B45309' }}>Share with delivery executive only after physical receipt of parcel</div>
+                  </div>
+                </div>
+
+                <div style={{
+                  backgroundColor: '#FFFFFF',
+                  border: '1.5px solid #FDE68A',
+                  borderRadius: '12px',
+                  padding: '8px 18px',
+                  fontSize: '24px',
+                  fontWeight: '900',
+                  letterSpacing: '5px',
+                  color: '#D97706',
+                  fontFamily: 'monospace'
+                }}>
+                  {trackingData.delivery_otp}
+                </div>
+              </div>
+            )}
+
             {/* Courier Details (if Shipped) */}
             {trackingData.tracking_number && (
               <div style={{

@@ -13,14 +13,17 @@ export default function CartDrawer({ onNavigate }) {
     discountTotal,
     itemsTotal,
     shippingFee,
+    shippingRate,
+    freeShippingThreshold,
     grandTotal
   } = useCart();
 
   if (!isCartOpen) return null;
 
-  const freeShippingThreshold = 499;
-  const progressPercent = Math.min(100, Math.round((itemsTotal / freeShippingThreshold) * 100));
-  const amountNeeded = Math.max(0, freeShippingThreshold - itemsTotal);
+  const isAllFreeShipping = shippingRate === 0;
+  const threshold = freeShippingThreshold || 499;
+  const progressPercent = isAllFreeShipping ? 100 : Math.min(100, Math.round((itemsTotal / threshold) * 100));
+  const amountNeeded = isAllFreeShipping ? 0 : Math.max(0, threshold - itemsTotal);
 
   return (
     <div style={{
@@ -76,7 +79,7 @@ export default function CartDrawer({ onNavigate }) {
         {/* Free Shipping Progress */}
         <div style={{ padding: '12px 24px', backgroundColor: '#F8FAFC', borderBottom: '1px solid var(--border-soft)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '700', marginBottom: '6px' }}>
-            <span>{amountNeeded === 0 ? '🎉 You unlocked Free Delivery!' : `Add ₹${amountNeeded} more for Free Delivery`}</span>
+            <span>{isAllFreeShipping ? '🎉 100% Free Delivery on all gift orders today!' : (amountNeeded === 0 ? '🎉 You unlocked Free Delivery!' : `Add ₹${amountNeeded} more for Free Delivery`)}</span>
             <span>{progressPercent}%</span>
           </div>
           <div style={{ width: '100%', height: '6px', backgroundColor: '#E2E8F0', borderRadius: '10px', overflow: 'hidden' }}>

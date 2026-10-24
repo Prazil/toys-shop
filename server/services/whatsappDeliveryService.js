@@ -149,6 +149,11 @@ function buildWhatsAppMessage(order, eventType) {
     `${order.city || ''}, ${order.state || ''} - *${order.pin_code || ''}*\n` +
     `📞 Phone: +91 ${order.customer_phone || order.phone}\n`;
 
+  if (order.delivery_otp) {
+    text += `\n🔐 *Delivery OTP:* *${order.delivery_otp}*\n` +
+      `_(Please share this OTP with your delivery executive only after receiving your package)_\n`;
+  }
+
   if (order.tracking_number) {
     text += `\n🚚 *Tracking Number:* \`${order.tracking_number}\`\n`;
     if (order.tracking_url) {

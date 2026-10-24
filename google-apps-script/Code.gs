@@ -371,6 +371,11 @@ function getWhatsAppMessageText(order) {
     `${order.city}, ${order.state} - *${order.pin_code}*\n` +
     `📞 Phone: +91 ${order.phone}\n`;
 
+  if (order.delivery_otp) {
+    msg += `\n🔐 *Delivery OTP:* *${order.delivery_otp}*\n` +
+      `_(Please share this OTP with your delivery executive only after receiving your package)_\n`;
+  }
+
   if (order.tracking_number) {
     msg += `\n🚚 *Tracking Number:* \`${order.tracking_number}\`\n`;
   }
@@ -432,6 +437,19 @@ function generateHtmlEmail(order, statusTitle, badgeColor) {
               </div>
             </td>
           </tr>
+
+          ${order.delivery_otp ? `
+          <!-- Secure Delivery OTP -->
+          <tr>
+            <td style="padding: 6px 30px 10px;">
+              <div style="background-color: #FFFBEB; border: 2px dashed #F59E0B; border-radius: 12px; padding: 14px 20px; text-align: center;">
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #B45309; font-weight: 800; margin-bottom: 2px;">🔐 Secure Delivery OTP (Free)</div>
+                <div style="font-size: 28px; font-weight: 900; letter-spacing: 6px; color: #D97706; margin: 4px 0; font-family: monospace;">${order.delivery_otp}</div>
+                <div style="font-size: 11px; color: #92400E;">Share this code with your delivery agent <strong>only upon receiving your package</strong>.</div>
+              </div>
+            </td>
+          </tr>
+          ` : ''}
 
           ${order.tracking_number ? `
           <!-- Tracking Info -->
@@ -627,6 +645,7 @@ function parseOrderPayload(payload) {
     payment_status: payload.payment_status || "Pending",
     order_status: payload.order_status || "Payment Pending",
     tracking_number: payload.tracking_number || "",
+    delivery_otp: payload.delivery_otp || "",
     created_at: payload.created_at || new Date().toISOString(),
     updated_at: payload.updated_at || new Date().toISOString()
   };

@@ -148,14 +148,18 @@ router.post('/', async (req, res) => {
       });
     }
 
-    // Shipping fee rule
+    // Dynamic shipping fee rule from store settings
     const freeShippingThresholdSetting = db.queryOne("SELECT value FROM settings WHERE key = 'free_shipping_threshold'");
+    const shippingFeeSetting = db.queryOne("SELECT value FROM settings WHERE key = 'shipping_fee'");
     const threshold = freeShippingThresholdSetting ? parseFloat(freeShippingThresholdSetting.value) : 499;
+    const defaultShippingFee = shippingFeeSetting ? parseFloat(shippingFeeSetting.value) : 0;
     const finalSubtotal = subtotal - discountTotal;
-    const shippingFee = finalSubtotal >= threshold ? 0 : 49;
+    const shippingFee = (defaultShippingFee === 0 || (threshold > 0 && finalSubtotal >= threshold)) ? 0 : defaultShippingFee;
     const grandTotal = finalSubtotal + shippingFee;
 
     const orderId = generateOrderId(db);
+    // Generate secure 4-digit Delivery OTP (Provided free to customer for secure delivery)
+    const deliveryOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
     // DEDUCT INVENTORY AND CREATE ORDER ATOMICALLY
     let newOrder;
@@ -173,14 +177,14 @@ router.post('/', async (req, res) => {
         }
       }
 
-      // 2. Insert order
+      // 2. Insert order with delivery_otp
       const orderInsert = db.run(
         `INSERT INTO orders (
           order_id, customer_name, customer_phone, customer_email,
           house_no, street, area, city, district, state, pincode, landmark,
           order_notes, subtotal, discount_total, shipping_fee, total_amount,
-          payment_method, payment_status, order_status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'UPI', 'Pending', 'Payment Pending')`,
+          payment_method, payment_status, order_status, delivery_otp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'UPI', 'Pending', 'Payment Pending', ?)`,
         [
           orderId,
           customer_name.trim(),
@@ -198,7 +202,8 @@ router.post('/', async (req, res) => {
           subtotal,
           discountTotal,
           shippingFee,
-          grandTotal
+          grandTotal,
+          deliveryOtp
         ]
       );
 

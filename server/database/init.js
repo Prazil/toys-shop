@@ -151,6 +151,18 @@ async function initDb() {
     console.error('Migration error on notifications table:', migErr.message);
   }
 
+  // Ensure delivery_otp column exists on orders table
+  try {
+    const cols = db.query("PRAGMA table_info(orders)");
+    const hasOtp = cols.some(c => c.name === 'delivery_otp');
+    if (!hasOtp) {
+      db.exec("ALTER TABLE orders ADD COLUMN delivery_otp TEXT");
+      console.log('[MIGRATION] Added delivery_otp column to orders table.');
+    }
+  } catch (otpErr) {
+    console.error('Error adding delivery_otp column:', otpErr.message);
+  }
+
   // Check and seed default admin
   const adminExists = db.queryOne("SELECT id FROM admins WHERE username = ?", ['admin']);
   if (!adminExists) {

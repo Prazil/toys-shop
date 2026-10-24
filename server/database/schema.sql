@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS orders (
   tracking_number TEXT,
   tracking_url TEXT,
   estimated_delivery TEXT,
+  delivery_otp TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );

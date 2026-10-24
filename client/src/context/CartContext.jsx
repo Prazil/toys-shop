@@ -90,6 +90,29 @@ export function CartProvider({ children }) {
     setCartItems([]);
   };
 
+  const [storeSettings, setStoreSettings] = useState({
+    shipping_fee: 0,
+    free_shipping_threshold: 499
+  });
+
+  useEffect(() => {
+    async function fetchPublicSettings() {
+      try {
+        const res = await fetch('/api/settings/public');
+        const data = await res.json();
+        if (data.success && data.shop) {
+          setStoreSettings({
+            shipping_fee: typeof data.shop.shipping_fee === 'number' ? data.shop.shipping_fee : parseFloat(data.shop.shipping_fee || '0'),
+            free_shipping_threshold: typeof data.shop.free_shipping_threshold === 'number' ? data.shop.free_shipping_threshold : parseFloat(data.shop.free_shipping_threshold || '499')
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load public store settings', e);
+      }
+    }
+    fetchPublicSettings();
+  }, []);
+
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -102,7 +125,18 @@ export function CartProvider({ children }) {
   }, 0);
 
   const itemsTotal = subtotal - discountTotal;
-  const shippingFee = itemsTotal >= 499 || itemsTotal === 0 ? 0 : 49;
+
+  // Dynamic Shipping Fee Calculation:
+  // If store configured shipping_fee is 0 -> Shipping is 100% FREE on all orders!
+  // If itemsTotal is 0 -> Shipping is 0
+  // If itemsTotal >= free_shipping_threshold -> Shipping is 0 (FREE Delivery threshold unlocked)
+  // Otherwise -> Charge store configured shipping_fee
+  const shippingRate = storeSettings.shipping_fee;
+  const freeShippingThreshold = storeSettings.free_shipping_threshold;
+  const shippingFee = (shippingRate === 0 || itemsTotal === 0 || (freeShippingThreshold > 0 && itemsTotal >= freeShippingThreshold))
+    ? 0
+    : shippingRate;
+
   const grandTotal = itemsTotal + shippingFee;
 
   return (
@@ -117,6 +151,8 @@ export function CartProvider({ children }) {
       discountTotal,
       itemsTotal,
       shippingFee,
+      shippingRate,
+      freeShippingThreshold,
       grandTotal,
       isCartOpen,
       setIsCartOpen,

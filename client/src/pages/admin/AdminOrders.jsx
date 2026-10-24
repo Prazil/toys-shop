@@ -17,6 +17,8 @@ export default function AdminOrders() {
   const [trackingNumber, setTrackingNumber] = useState('');
   const [trackingUrl, setTrackingUrl] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [enteredOtp, setEnteredOtp] = useState('');
+  const [bypassOtp, setBypassOtp] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -50,11 +52,21 @@ export default function AdminOrders() {
     setCourierName(ord.courier_name || '');
     setTrackingNumber(ord.tracking_number || '');
     setTrackingUrl(ord.tracking_url || '');
+    setEnteredOtp('');
+    setBypassOtp(false);
   };
 
   const handleUpdateStatus = async (e) => {
     e.preventDefault();
     if (!selectedOrder || !newStatus) return;
+
+    // Verify Delivery OTP when status is marked Delivered
+    if (newStatus === 'Delivered' && selectedOrder.delivery_otp && !bypassOtp) {
+      if (enteredOtp.trim() !== selectedOrder.delivery_otp) {
+        alert(`⚠️ Delivery OTP Verification Required!\n\nPlease enter the correct 4-digit Delivery OTP (${selectedOrder.delivery_otp}) provided by customer "${selectedOrder.customer_name}", or check "Bypass OTP" for manual delivery.`);
+        return;
+      }
+    }
 
     setIsUpdating(true);
     try {
@@ -62,7 +74,8 @@ export default function AdminOrders() {
         order_status: newStatus,
         courier_name: courierName.trim(),
         tracking_number: trackingNumber.trim(),
-        tracking_url: trackingUrl.trim()
+        tracking_url: trackingUrl.trim(),
+        delivery_otp_verified: bypassOtp ? 'BYPASSED' : 'VERIFIED'
       };
 
       const res = await fetch(`/api/orders/admin/${selectedOrder.id}/status`, {
@@ -380,6 +393,62 @@ export default function AdminOrders() {
                     </div>
                   </div>
                 )}
+
+                {/* OTP Verification for Delivered Status */}
+                {newStatus === 'Delivered' && selectedOrder.delivery_otp && (
+                  <div style={{
+                    backgroundColor: '#FEF3C7',
+                    border: '1.5px solid #F59E0B',
+                    borderRadius: '14px',
+                    padding: '16px',
+                    marginTop: '8px'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px', flexWrap: 'wrap', gap: '8px' }}>
+                      <label style={{ fontSize: '13px', fontWeight: '800', color: '#92400E', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span>🔐</span>
+                        <span>Customer Delivery OTP Verification:</span>
+                      </label>
+                      <span style={{ fontSize: '12px', color: '#B45309', fontWeight: '700' }}>
+                        Generated OTP: <strong style={{ letterSpacing: '2px', fontFamily: 'monospace' }}>{selectedOrder.delivery_otp}</strong>
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <input
+                        type="text"
+                        maxLength="4"
+                        placeholder="Enter 4-digit OTP"
+                        value={enteredOtp}
+                        onChange={(e) => setEnteredOtp(e.target.value)}
+                        disabled={bypassOtp}
+                        className="input-control"
+                        style={{
+                          maxWidth: '180px',
+                          letterSpacing: '4px',
+                          fontWeight: '800',
+                          textAlign: 'center',
+                          fontSize: '16px',
+                          backgroundColor: '#FFFFFF',
+                          borderColor: enteredOtp === selectedOrder.delivery_otp ? '#10B981' : '#F59E0B'
+                        }}
+                      />
+                      {enteredOtp === selectedOrder.delivery_otp && (
+                        <span style={{ color: '#10B981', fontWeight: '800', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          ✓ OTP Verified!
+                        </span>
+                      )}
+                    </div>
+
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#78350F', marginTop: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={bypassOtp}
+                        onChange={(e) => setBypassOtp(e.target.checked)}
+                      />
+                      <span>Bypass OTP (Manual handover without customer phone)</span>
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div style={{
@@ -391,7 +460,7 @@ export default function AdminOrders() {
                 gap: '6px'
               }}>
                 <span>⚡</span>
-                <span>Updating will automatically: 1. Send HTML Email • 2. Send SMS • 3. Update Google Sheet row!</span>
+                <span>Updating will automatically: 1. Send HTML Email • 2. Send WhatsApp Notification • 3. Update Google Sheet row!</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
@@ -425,6 +494,12 @@ export default function AdminOrders() {
                 <div>Name: <strong>{selectedOrder.customer_name}</strong></div>
                 <div>Phone: <strong>{selectedOrder.customer_phone}</strong></div>
                 <div>Email: <strong>{selectedOrder.customer_email}</strong></div>
+                {selectedOrder.delivery_otp && (
+                  <div style={{ marginTop: '4px' }}>
+                    Delivery OTP: <span style={{ backgroundColor: '#FEF3C7', color: '#B45309', padding: '2px 8px', borderRadius: '6px', fontWeight: '800', fontFamily: 'monospace', letterSpacing: '1px' }}>🔐 {selectedOrder.delivery_otp}</span>
+                    <span style={{ marginLeft: '6px', fontSize: '10px', color: '#10B981', fontWeight: '700' }}>(Free to customer)</span>
+                  </div>
+                )}
                 {selectedOrder.payment_ref && <div>UPI Reference: <code style={{ backgroundColor: '#E2E8F0', padding: '2px 4px', borderRadius: '4px' }}>{selectedOrder.payment_ref}</code></div>}
                 <div style={{ marginTop: '8px' }}>
                   <a

@@ -151,6 +151,23 @@ function generateEmailHtml({ order, eventType, statusTitle, statusBadgeColor, st
             </td>
           </tr>
 
+          <!-- Secure Delivery OTP Box (Free to customer) -->
+          ${order.delivery_otp ? `
+          <tr>
+            <td style="padding: 6px 30px 14px;">
+              <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background: #FFFBEB; border: 2px dashed #F59E0B; border-radius: 14px; padding: 16px 20px; text-align: center;">
+                <tr>
+                  <td align="center">
+                    <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #B45309; font-weight: 800; margin-bottom: 4px;">🔐 Secure Delivery OTP (Free)</div>
+                    <div style="font-size: 30px; font-weight: 900; letter-spacing: 6px; color: #D97706; margin: 4px 0 6px; font-family: monospace;">${order.delivery_otp}</div>
+                    <div style="font-size: 12px; color: #92400E;">Share this code with your delivery agent <strong>only upon receiving your package</strong>.</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          ` : ''}
+
           <!-- Tracking Info Box (if applicable) -->
           ${showTracking && (order.tracking_number || order.courier_name) ? `
           <tr>
